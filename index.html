@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Shree Laxmi Laboratory</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="login-container">
+  <h2>Shree Laxmi Laboratory</h2>
+  <h3>Enter Phone Number</h3>
+
+  <input type="text" id="phone" placeholder="+91 Enter Mobile Number">
+  <div id="recaptcha-container"></div>
+  <button onclick="sendOTP()">Send OTP</button>
+
+  <input type="text" id="otp" placeholder="Enter OTP">
+  <button onclick="verifyOTP()">Verify OTP</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCfIW14dQ3WOoFuq-Ux-XTQ9YULT2fZKsU",
+  authDomain: "shreelaxmilab-62bd2.firebaseapp.com",
+  projectId: "shreelaxmilab-62bd2",
+  storageBucket: "shreelaxmilab-62bd2.firebasestorage.app",
+  messagingSenderId: "928372887275",
+  appId: "1:928372887275:web:854071c5d19f1388e638ae"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+  size: 'normal',
+});
+
+window.sendOTP = function() {
+  const phoneNumber = document.getElementById("phone").value;
+  const appVerifier = window.recaptchaVerifier;
+
+  signInWithPhoneNumber(auth, phoneNumber, appVerifier)
+    .then((confirmationResult) => {
+      window.confirmationResult = confirmationResult;
+      alert("OTP Sent!");
+    }).catch((error) => {
+      alert(error.message);
+    });
+}
+
+window.verifyOTP = function() {
+  const code = document.getElementById("otp").value;
+  window.confirmationResult.confirm(code).then((result) => {
+      alert("Login Successful!");
+      window.location.href = "home.html";
+  }).catch((error) => {
+      alert("Invalid OTP");
+  });
+}
+</script>
+
+</body>
+</html>
