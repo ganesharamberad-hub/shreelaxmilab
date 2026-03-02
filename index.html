@@ -9,20 +9,17 @@
 
 <div class="login-container">
   <h2>Shree Laxmi Laboratory</h2>
-  <h3>Enter Phone Number</h3>
+  <h3>Enter Mobile Number</h3>
 
-  <input type="text" id="phone" placeholder="+91 Enter Mobile Number">
-  <div id="recaptcha-container"></div>
-  <button onclick="sendOTP()">Send OTP</button>
-
-  <input type="text" id="otp" placeholder="Enter OTP">
-  <button onclick="verifyOTP()">Verify OTP</button>
+  <input type="text" id="phone" placeholder="Enter Mobile Number">
+  <input type="text" id="name" placeholder="Enter Your Name">
+  <button onclick="login()">Continue</button>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+import { getFirestore, doc, setDoc } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCfIW14dQ3WOoFuq-Ux-XTQ9YULT2fZKsU",
@@ -34,33 +31,25 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const db = getFirestore(app);
 
-window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-  size: 'normal',
-});
+window.login = async function() {
+  const phone = document.getElementById("phone").value;
+  const name = document.getElementById("name").value;
 
-window.sendOTP = function() {
-  const phoneNumber = document.getElementById("phone").value;
-  const appVerifier = window.recaptchaVerifier;
+  if(phone === "" || name === "") {
+    alert("Please fill all fields");
+    return;
+  }
 
-  signInWithPhoneNumber(auth, phoneNumber, appVerifier)
-    .then((confirmationResult) => {
-      window.confirmationResult = confirmationResult;
-      alert("OTP Sent!");
-    }).catch((error) => {
-      alert(error.message);
-    });
-}
-
-window.verifyOTP = function() {
-  const code = document.getElementById("otp").value;
-  window.confirmationResult.confirm(code).then((result) => {
-      alert("Login Successful!");
-      window.location.href = "home.html";
-  }).catch((error) => {
-      alert("Invalid OTP");
+  await setDoc(doc(db, "users", phone), {
+    name: name,
+    phone: phone,
+    createdAt: new Date()
   });
+
+  localStorage.setItem("userName", name);
+  window.location.href = "home.html";
 }
 </script>
 
